@@ -37,7 +37,7 @@ def torre_de_hanoi(numero_de_discos: int):
 
 
 if __name__ == '__main__':
-    for i in range(1, 4):
+    for i in range(3, 4):
         print(f'##### Hanoi para {i} discos')
         torre_de_hanoi(i)
         print(f'********* {contagem_de_chamadas_recursivas} chamadas')
