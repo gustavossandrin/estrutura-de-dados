@@ -62,3 +62,8 @@ class BalancearTestes(unittest.TestCase):
 
     def test_char_errado_fechando(self):
         self.assertFalse(esta_balanceada('[)'))
+
+    def test_char_errado_anterior(self):
+        self.assertFalse(esta_balanceada('[)]'))
+
+

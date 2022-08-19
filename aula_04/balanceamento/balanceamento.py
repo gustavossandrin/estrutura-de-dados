@@ -1,19 +1,4 @@
-def pegar_simbolos(lista):
-    simbolos = []
-    for i in lista:
-        if i == '(':
-            simbolos.append(i)
-        elif i == ')':
-            simbolos.append(i)
-        if i == ']':
-            simbolos.append(i)
-        if i == '[':
-            simbolos.append(i)
-        if i == '{':
-            simbolos.append(i)
-        if i == '}':
-            simbolos.append(i)
-    return simbolos
+from aula_04.pilha_com_lista.pilha_com_lista import Pilha
 
 
 def esta_balanceada(expressao):
@@ -24,40 +9,25 @@ def esta_balanceada(expressao):
     :param expressao: string com expressao a ser balanceada
     :return: boleano verdadeiro se expressao está balanceada e falso caso contrário
     """
-    if expressao == '':
-        return True
-    expressao_com_simbolos = pegar_simbolos(expressao)
-    pilha = []
-    if expressao_com_simbolos[0] == '}':
-        return False
-    if expressao_com_simbolos[0] == ')':
-        return False
-    if expressao_com_simbolos[0] == ']':
-        return False
-
-    for i in expressao_com_simbolos:
-        if i:
-            if i == ')' and pilha[-1] == '(':
-                pilha.pop()
-            elif i == ']' and pilha[-1] == '[':
-                pilha.pop()
-            elif i == '}' and pilha[-1] == '{':
-                pilha.pop()
-            elif i == ')' and pilha[-1] != '(':
-                return False
-            elif i == ']' and pilha[-1] != '[':
-                return False
-            elif i == '}' and pilha[-1] != '{':
+    pilha = Pilha()
+    pares = {')': '(', ']': '[', '}': '{'}
+    for i in expressao:
+        if i in '([{':
+            pilha.empilhar(i)
+        elif i in ')]}':
+            try:
+                pilha.topo()
+            except:
                 return False
             else:
-                pilha.append(i)
-
-    if len(pilha) == 0:
+                if pilha.topo() != pares[i]:
+                    return False
+                else:
+                    pilha.desempilhar()
+    if pilha.esta_vazia == True:
         return True
     else:
         return False
 
-
 if __name__ == '__main__':
-    print(esta_balanceada('[[[]]{{}}()'))
-    print(pegar_simbolos('4 5 123 321 [ [ } ] 21 ('.split()))
+    print(esta_balanceada('{{}}()()([])'))
