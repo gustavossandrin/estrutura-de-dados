@@ -4,23 +4,15 @@ import unittest
 import sys
 from os import path
 
+from aula_04.balanceamento.balanceamento import esta_balanceada
+
 file_path = path.abspath(__file__)
-projeto_path = path.join(file_path, '..', '..')
+projeto_path = path.join(file_path, '../..', '..')
 projeto_path = path.abspath(projeto_path)
 sys.path.append(projeto_path)
 
 
 ## Fim
-
-def esta_balanceada(expressao):
-    """
-    Função que calcula se expressão possui parenteses, colchetes e chaves balanceados
-    O Aluno deverá informar a complexidade de tempo e espaço da função
-    Deverá ser usada como estrutura de dados apenas a pilha feita na aula anterior
-    :param expressao: string com expressao a ser balanceada
-    :return: boleano verdadeiro se expressao está balanceada e falso caso contrário
-    """
-    pass
 
 
 class BalancearTestes(unittest.TestCase):
