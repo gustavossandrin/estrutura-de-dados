@@ -1,18 +1,25 @@
 import unittest
-from math import inf
 
 
 def ordenar(seq):
-    lista_ordenada = []
-    for indice, _ in enumerate(list(seq)):
-        valor_minimo = inf
-        for i in seq[indice:]:
-            if i < valor_minimo:
-                valor_minimo = i
-        seq.remove(valor_minimo)
-        seq.insert(0, 0)
-        lista_ordenada.append(valor_minimo)
-    return lista_ordenada
+    if len(seq) > 1:
+        m = len(seq) // 2
+        left_list = ordenar(seq[:m])
+        right_list = ordenar(seq[m:])
+
+        right_index = left_index = 0
+        seq = []
+
+        while left_index < len(left_list) and right_index < len(right_list):
+            if left_list[left_index] <= right_list[right_index]:
+                seq.append(left_list[left_index])
+                left_index += 1
+            else:
+                seq.append(right_list[right_index])
+                right_index += 1
+        seq.extend(right_list[right_index:])
+        seq.extend(left_list[left_index:])
+    return seq
 
 
 class OrdenacaoTestes(unittest.TestCase):
