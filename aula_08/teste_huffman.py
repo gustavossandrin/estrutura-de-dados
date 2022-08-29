@@ -19,10 +19,9 @@ def gerar_arvore_de_huffman(s):
     return arvores[0]
 
 
-def codificar(cod_dict:dict, s:str):
+def codificar(cod_dict: dict, s: str):
     for char in s:
         yield cod_dict[char]
-
 
 
 class Noh:
