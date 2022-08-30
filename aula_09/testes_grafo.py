@@ -1,9 +1,11 @@
 import unittest
+from numbers import Number
+from typing import Dict, List, Tuple
 
 
 class Arco():
-    def __init__(self, origem, destino, valor):
-        self.valor = valor
+    def __init__(self, origem: str, destino: str, valor: Number):
+        self.valor_original = self.valor = valor
         self.vertices = (origem, destino)
 
     def __hash__(self):
@@ -12,8 +14,17 @@ class Arco():
     def __eq__(self, arco):
         return (self.valor,) + self.vertices == (arco.valor,) + arco.vertices
 
+    def __lt__(self, other):
+        return self.valor < other.valor
+
     def __repr__(self):
         return 'Arco({!r}, {!r}, {!r})'.format(self.vertices[0], self.vertices[1], self.valor)
+
+    def oposto(self, vertice: str):
+        if vertice == self.vertices[0]:
+            return self.vertices[1]
+        elif vertice == self.vertices[1]:
+            return self.vertices[0]
 
 
 class ArcoTestes(unittest.TestCase):
@@ -74,6 +85,92 @@ arcos_distancias = (
     arco_santos_sp,
     arco_santos_bertioga
 )
+
+
+class Grafo:
+
+    def __init__(self):
+        self._vertices: Dict[str, Dict[str, List[Arco]]] = dict()
+
+    def vertices(self):
+        return tuple(self._vertices)
+
+    def adicionar_vertice(self, vertice: str):
+        self._vertices[vertice] = self._vertices.get(vertice, dict())
+
+    def arcos(self, vertice: str):
+        lista_de_arcos = []
+        for lista_de_arcos_vertice_oposto in self._vertices[vertice].values():
+            lista_de_arcos.extend(lista_de_arcos_vertice_oposto)
+
+        return tuple(lista_de_arcos)
+
+    def adjacencias(self, vertice: str):
+        return tuple(self._vertices[vertice].keys())
+
+    def adicionar_arco(self, arco: Arco):
+        for vertice in arco.vertices:
+            self.adicionar_vertice(vertice)
+            dict_adjacencias: Dict[str, List[Arco]] = self._vertices[vertice]
+            vertice_oposto: str = arco.oposto(vertice)
+            lista_de_arcos: List[Arco] = dict_adjacencias.get(vertice_oposto, list())
+            lista_de_arcos.append(arco)
+            dict_adjacencias[vertice_oposto] = lista_de_arcos
+
+    def caminho(self, vertice_origem: str, vertice_destino: str) -> List[str]:
+        if vertice_destino == vertice_origem:
+            return [vertice_origem]
+        vertices_visitados = {vertice_origem}
+        arcos = []
+        arcos.extend(self.arcos(vertice_origem))
+        caminho = [vertice_origem]
+        while arcos:
+            arco = arcos.pop()
+            vertice_oposto = arco.oposto(vertice_origem)
+            if vertice_oposto == vertice_destino:
+                caminho.append(vertice_destino)
+                return caminho
+
+            if vertice_oposto not in vertices_visitados:
+                vertice_origem = vertice_oposto
+                vertices_visitados.add(vertice_origem)
+                caminho.append(vertice_origem)
+                arcos.extend(self.arcos(vertice_origem))
+        return []
+
+    def calcular_melhores_caminhos_partindo_de(self, cidade) -> dict:
+        cidades_visitadas = {cidade}
+        caminho = [cidade]
+        lista_de_arcos = list(self.arcos(cidade))
+        dct_caminhos_minimos = {cidade: (0, caminho)}
+        while len(lista_de_arcos) > 0:
+            arco_distancia_minima = min(lista_de_arcos)
+            if set(arco_distancia_minima.vertices).issubset(cidades_visitadas):
+                lista_de_arcos.remove(arco_distancia_minima)
+                continue
+
+            uma_cidade_do_arco_distancia_minima = arco_distancia_minima.vertices[0]
+            if uma_cidade_do_arco_distancia_minima in cidades_visitadas:
+                origem = arco_distancia_minima.oposto(uma_cidade_do_arco_distancia_minima)
+                caminho = list(dct_caminhos_minimos[uma_cidade_do_arco_distancia_minima][1])
+            else:
+                origem = uma_cidade_do_arco_distancia_minima
+                caminho = list(
+                    dct_caminhos_minimos[arco_distancia_minima.oposto(uma_cidade_do_arco_distancia_minima)][1])
+            lista_de_arcos.remove(arco_distancia_minima)
+            distancia_minima = arco_distancia_minima.valor
+            caminho.append(arco_distancia_minima.valor_original)
+            caminho.append(origem)
+            dct_caminhos_minimos[origem] = (distancia_minima, caminho)
+
+            arcos_da_origem = self.arcos(origem)
+            for arco in arcos_da_origem:
+                if arco.oposto(origem) not in cidades_visitadas:
+                    arco.valor += distancia_minima
+                    lista_de_arcos.append(arco)
+            cidades_visitadas.add(origem)
+
+        return dct_caminhos_minimos
 
 
 class GrafoTestes(unittest.TestCase):
@@ -215,7 +312,7 @@ class GrafoTestes(unittest.TestCase):
         for a in arcos_custo:
             vertices_contrarios = (a.vertices[1], a.vertices[0])
             pedagio = pedagios.get(a.vertices, pedagios.get(vertices_contrarios, 0))
-            a.valor = round(pedagio + a.valor)
+            a.valor_original = a.valor = round(pedagio + a.valor)
 
             grafo.adicionar_arco(a)
 
