@@ -1,6 +1,6 @@
 import unittest
 from numbers import Number
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 
 class Arco():
